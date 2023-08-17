@@ -6,7 +6,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// Implementation of the CustomerRepository interface.
+/**
+ * This class implements the {@link CustomerRepository} interface and provides methods
+ * to manage Customer entities using a database connection.
+ *
+ * @see CustomerRepository
+ */
 public class CustomerRepositoryImpl implements CustomerRepository {
     // Database URL for connecting to the PostgreSQL database.
     private String url = "jdbc:postgresql://localhost:5432/Assignment-2-db";
@@ -17,12 +22,20 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     // Password for authenticating the database connection.
     private String password = "postgres";
 
-    // Default constructor for the CustomerRepositoryImpl class.
+    /**
+     * Default constructor for the CustomerRepositoryImpl class.
+     */
     public CustomerRepositoryImpl() {
         // Empty constructor body.
     }
 
-    // Constructor for the CustomerRepositoryImpl class with custom database connection parameters.
+    /**
+     * Constructor for the CustomerRepositoryImpl class with custom database connection parameters.
+     *
+     * @param url      The database URL.
+     * @param username The username for authentication.
+     * @param password The password for authentication.
+     */
     public CustomerRepositoryImpl(String url, String username, String password) {
         this.url = url;
         this.username = username;
@@ -30,7 +43,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
 
-    // Method for testing the database connection.
+    /**
+     * Method for testing the database connection.
+     */
     public void test() {
         try (Connection conn = DriverManager.getConnection(url, username, password);) {
             System.out.println("Connected to Postgres...");  // Print message indicating successful connection.
@@ -41,9 +56,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
 
     //Task 1
-
-     //Retrieves a list of all customers from the database.
-     //@return A list of Customer objects containing information about each customer.
+    /**
+     * Retrieves a list of all customers from the database.
+     *
+     * @return A list of Customer objects containing information about each customer.
+     */
     @Override
     public List<Customer> findAll() {
         String sql = "SELECT * FROM customer";
@@ -74,7 +91,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
 
     // Task 2
-    // Finds Customer from provided ID
+    /**
+     * Finds Customer from provided ID.
+     *
+     * @param customerID The ID of the customer to retrieve.
+     * @return A Customer object containing information about the retrieved customer,
+     *         or null if the customer is not found.
+     */
     @Override
     public Customer findById(Integer customerID) {
         String sql = "SELECT * FROM customer WHERE customer_id=?";
@@ -104,7 +127,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     // Task 3
-    // Returns a Customer or Customers (in case naming string fits multiple customers)
+    /**
+     * Returns a Customer or Customers (in case naming string fits multiple customers).
+     *
+     * @param customerName The name to search for.
+     * @return A list of Customer entities with the specified name.
+     */
     public List<Customer> getCustomerByName(String customerName) {
         String sql = "SELECT * FROM customer WHERE first_name LIKE ?";
         List<Customer> customers = new ArrayList<>();
@@ -134,7 +162,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     //Task 4
-    // Gets a list of customers. Size of the list is decided by limit variable, offset indicates number of customers that should be skipped
+    /**
+     * Gets a list of customers with size and offset.
+     *
+     * @param limit  The maximum number of customers to retrieve.
+     * @param offset The starting position for retrieving customers.
+     * @return A list of Customer entities limited by the specified parameters.
+     */
     public List<Customer> getAllCustomersLimited(int limit, int offset) {
         String sql = "SELECT * FROM customer LIMIT ? OFFSET ?";
         List<Customer> customers = new ArrayList<>();
@@ -166,7 +200,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     // Task 5
-    // Saves customer to the Database and returns response as an int
+    /**
+     * Saves customer to the Database and returns response as an int.
+     *
+     * @param customer The customer to save.
+     * @return An int indicating the status of the save operation.
+     */
     public int save(Customer customer) {
         String sql = "INSERT INTO customer (first_name, last_name, country, postal_code, phone, email) VALUES (?,?,?,?,?,?)";
         int result = 0;
@@ -189,7 +228,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     // Task 6
-    // Updates an email of a chosen customer by ID
+    /**
+     * Updates an email of a chosen customer by ID.
+     *
+     * @param id       The ID of the customer.
+     * @param newEmail The new email to update.
+     * @return An int indicating the status of the update operation.
+     */
     @Override
     public int update(Integer id, String newEmail) {
         String sql = "UPDATE customer SET email = ? WHERE customer_id = ?";
@@ -209,7 +254,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     // Task 7
-    // Returns the country or countries (in case multiple countries have the same number of customers living there) that has the most number of residents
+    /**
+     * Returns the country or countries with the most number of residents.
+     *
+     * @return A list of strings representing the most common countries.
+     */
     public List<String> getMostCommonCountries() {
         String sql = "SELECT country, COUNT(*) as frequency FROM customer GROUP BY country ORDER BY COUNT(*) DESC;";
         List<String> commonCountries = new ArrayList<>();
@@ -236,7 +285,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     //Task 8
-    // Combines invoices of all customers and return the customer that spent the most. Data is served as a list to represent name, last name and total amount spent
+    /**
+     * Combines invoices for all customers and returns customer data for the highest spender.
+     *
+     * @return A list of strings representing customer name, last name, and total amount spent.
+     */
     public List<String> getHighestSpender() {
         String sql =
                 "SELECT SUM(invoice.total) AS total, customer.first_name AS name, customer.last_name AS surname " +
@@ -266,7 +319,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     //Task 9
-    // Returns most common genre of a single customer (or multiple genres, in case customer has multiple "favourite" genres)
+    /**
+     * Returns most common genre of a single customer (or multiple genres).
+     *
+     * @param customerID The ID of the customer.
+     * @return A list of strings representing the most popular genres for the customer.
+     */
     public List<String> getMostPopularGenre(int customerID) {
         String sql =
                 " SELECT customer.first_name, customer.last_name, genre.name, COUNT(genre.name) AS frequency " +
@@ -307,7 +365,11 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     // Not part of the origin requirement, but part of the basic CRUD functions
-    // Deletes a customer of a chosen ID
+    /**
+     * Deletes a customer of a chosen ID.
+     *
+     * @param customerID The ID of the customer to delete.
+     */
     @Override
     public void deleteById(Integer customerID) {
         String sql = "DELETE FROM customers WHERE customer_id=?";
