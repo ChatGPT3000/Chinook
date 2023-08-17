@@ -1,43 +1,59 @@
-package com.example.chinook_assignment;
+package com.example.chinook_assignment.repository;
+
+import com.example.chinook_assignment.entity.Customer;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class PostGradDAO {
-    // Default values that can be overridden
+// Implementation of the CustomerRepository interface.
+public class CustomerRepositoryImpl implements CustomerRepository {
+    // Database URL for connecting to the PostgreSQL database.
     private String url = "jdbc:postgresql://localhost:5432/Assignment-2-db";
+
+    // Username for authenticating the database connection.
     private String username = "postgres";
+
+    // Password for authenticating the database connection.
     private String password = "postgres";
 
-    public PostGradDAO() {
+    // Default constructor for the CustomerRepositoryImpl class.
+    public CustomerRepositoryImpl() {
+        // Empty constructor body.
     }
 
-    public PostGradDAO(String url, String username, String password) {
+    // Constructor for the CustomerRepositoryImpl class with custom database connection parameters.
+    public CustomerRepositoryImpl(String url, String username, String password) {
         this.url = url;
         this.username = username;
         this.password = password;
     }
 
+
+    // Method for testing the database connection.
     public void test() {
         try (Connection conn = DriverManager.getConnection(url, username, password);) {
-            System.out.println("Connected to Postgres...");
+            System.out.println("Connected to Postgres...");  // Print message indicating successful connection.
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Print the stack trace in case of connection error.
         }
     }
 
+
     //Task 1
-    public List<Customer> getAllCustomers() {
+
+     //Retrieves a list of all customers from the database.
+     //@return A list of Customer objects containing information about each customer.
+    @Override
+    public List<Customer> findAll() {
         String sql = "SELECT * FROM customer";
         List<Customer> customers = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            // Write statement
+            // Create a PreparedStatement for the SQL query
             PreparedStatement statement = conn.prepareStatement(sql);
-            // Execute statement
+            // Execute the query and get the result set
             ResultSet result = statement.executeQuery();
-            // Handle result
+            // Process the result set and populate the customers list
             while (result.next()) {
                 Customer customer = new Customer(
                         result.getInt("customer_id"),
@@ -51,13 +67,16 @@ public class PostGradDAO {
                 customers.add(customer);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();  // Print the stack trace in case of an SQL exception.
         }
-        return customers;
+        return customers;  // Return the list of retrieved customers.
     }
 
+
     // Task 2
-    public Customer getCustomerById(int customerID) {
+    // Finds Customer from provided ID
+    @Override
+    public Customer findById(Integer customerID) {
         String sql = "SELECT * FROM customer WHERE customer_id=?";
         Customer customer = null;
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
@@ -79,12 +98,13 @@ public class PostGradDAO {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return customer;
+        return customer; // Returns retrieved customer.
     }
 
     // Task 3
+    // Returns a Customer or Customers (in case naming string fits multiple customers)
     public List<Customer> getCustomerByName(String customerName) {
         String sql = "SELECT * FROM customer WHERE first_name LIKE ?";
         List<Customer> customers = new ArrayList<>();
@@ -108,12 +128,13 @@ public class PostGradDAO {
                 customers.add(customer);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return customers;
+        return customers; // Return the list of retrieved customers.
     }
 
     //Task 4
+    // Gets a list of customers. Size of the list is decided by limit variable, offset indicates number of customers that should be skipped
     public List<Customer> getAllCustomersLimited(int limit, int offset) {
         String sql = "SELECT * FROM customer LIMIT ? OFFSET ?";
         List<Customer> customers = new ArrayList<>();
@@ -139,13 +160,14 @@ public class PostGradDAO {
                 customers.add(customer);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return customers;
+        return customers; // Return the list of retrieved customers.
     }
 
     // Task 5
-    public int insert(Customer customer) {
+    // Saves customer to the Database and returns response as an int
+    public int save(Customer customer) {
         String sql = "INSERT INTO customer (first_name, last_name, country, postal_code, phone, email) VALUES (?,?,?,?,?,?)";
         int result = 0;
         try(Connection conn = DriverManager.getConnection(url, username,password)) {
@@ -161,13 +183,15 @@ public class PostGradDAO {
             // Execute statement
             result = statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return result;
+        return result; // Returns response as int
     }
 
     // Task 6
-    public int update(int id, String newEmail) {
+    // Updates an email of a chosen customer by ID
+    @Override
+    public int update(Integer id, String newEmail) {
         String sql = "UPDATE customer SET email = ? WHERE customer_id = ?";
         int result = 0;
         try(Connection conn = DriverManager.getConnection(url, username,password)) {
@@ -179,12 +203,13 @@ public class PostGradDAO {
             // Execute statement
             result = statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return result;
+        return result; // Returns response as an int
     }
 
     // Task 7
+    // Returns the country or countries (in case multiple countries have the same number of customers living there) that has the most number of residents
     public List<String> getMostCommonCountries() {
         String sql = "SELECT country, COUNT(*) as frequency FROM customer GROUP BY country ORDER BY COUNT(*) DESC;";
         List<String> commonCountries = new ArrayList<>();
@@ -205,12 +230,13 @@ public class PostGradDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
-        return commonCountries;
+        return commonCountries; // Countries are returned as a string list
     }
 
     //Task 8
+    // Combines invoices of all customers and return the customer that spent the most. Data is served as a list to represent name, last name and total amount spent
     public List<String> getHighestSpender() {
         String sql =
                 "SELECT SUM(invoice.total) AS total, customer.first_name AS name, customer.last_name AS surname " +
@@ -234,12 +260,13 @@ public class PostGradDAO {
 
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
         return customerData;
     }
 
     //Task 9
+    // Returns most common genre of a single customer (or multiple genres, in case customer has multiple "favourite" genres)
     public List<String> getMostPopularGenre(int customerID) {
         String sql =
                 " SELECT customer.first_name, customer.last_name, genre.name, COUNT(genre.name) AS frequency " +
@@ -274,9 +301,23 @@ public class PostGradDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
         }
         return popularGenre;
     }
-}
 
+    // Not part of the origin requirement, but part of the basic CRUD functions
+    // Deletes a customer of a chosen ID
+    @Override
+    public void deleteById(Integer customerID) {
+        String sql = "DELETE FROM customers WHERE customer_id=?";
+        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, customerID);
+            statement.executeQuery();
+
+        }catch (SQLException e){
+            e.printStackTrace(); // Print the stack trace in case of an SQL exception.
+        }
+    }
+}

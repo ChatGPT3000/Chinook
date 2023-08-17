@@ -1,5 +1,7 @@
 package com.example.chinook_assignment;
 
+import com.example.chinook_assignment.entity.Customer;
+import com.example.chinook_assignment.repository.CustomerRepositoryImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -13,69 +15,69 @@ public class ChinookAssignmentApplication {
     }
 
     private void testTask1() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<Customer> allCustomers = postGradDAO.getAllCustomers();
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<Customer> allCustomers = customerRepository.findAll();
         for (Customer customer : allCustomers) {
             System.out.println(customer.toString());
         }
     }
 
     private void testTask2() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        Customer customer = postGradDAO.getCustomerById(1);
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        Customer customer = customerRepository.findById(1);
         System.out.println(customer.toString());
     }
 
     private void testTask3() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<Customer> allCustomers = postGradDAO.getCustomerByName("John");
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<Customer> allCustomers = customerRepository.getCustomerByName("John");
         for (Customer customer : allCustomers) {
             System.out.println(customer.toString());
         }
     }
 
     private void testTask4() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<Customer> allCustomers = postGradDAO.getAllCustomersLimited(5, 3);
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<Customer> allCustomers = customerRepository.getAllCustomersLimited(5, 3);
         for (Customer customer : allCustomers) {
             System.out.println(customer.toString());
         }
     }
 
     private void testTask5() {
-        PostGradDAO postGradDAO = new PostGradDAO();
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
         // Id number provided is arbitrary, as id will be auto incremented in the database
-        postGradDAO.insert(new Customer(0, "Harry", "Potter", "UK", "222 33", "1234567890", "harry.potter@wizardmail.com"));
+        customerRepository.save(new Customer(0, "Harry", "Potter", "UK", "222 33", "1234567890", "harry.potter@wizardmail.com"));
     }
 
     private void testTask6() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        System.out.println(postGradDAO.getCustomerById(1));
-        System.out.println(postGradDAO.update(1, "new.email@gmail.com"));
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        System.out.println(customerRepository.findById(1));
+        System.out.println(customerRepository.update(1, "new.email@gmail.com"));
+        System.out.println(customerRepository.findById(1));
     }
 
     private void testTask7() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<String> countries = postGradDAO.getMostCommonCountries();
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<String> countries = customerRepository.getMostCommonCountries();
         for ( String country : countries ) {
             System.out.println(country);
         }
     }
 
     private void testTask8() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<String> customerData = postGradDAO.getHighestSpender();
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<String> customerData = customerRepository.getHighestSpender();
         for ( String data : customerData ) {
             System.out.println(data);
         }
     }
 
     private void testTask9() {
-        PostGradDAO postGradDAO = new PostGradDAO();
-        List<String> genres = postGradDAO.getMostPopularGenre(1);
+        CustomerRepositoryImpl customerRepository = new CustomerRepositoryImpl();
+        List<String> genres = customerRepository.getMostPopularGenre(1);
         for ( String genre : genres ) {
             System.out.println(genre);
         }
     }
-
 }
